@@ -1,0 +1,35 @@
+{
+  "name": "a-i-automation",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next build"
+  },
+  "dependencies": {
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "gsap": "3.12.5",
+    "@gsap/react": "2.1.1",
+    "lenis": "1.1.18",
+    "three": "0.169.0",
+    "@react-three/fiber": "9.0.4",
+    "@react-three/drei": "10.0.6",
+    "@react-three/postprocessing": "3.0.4",
+    "postprocessing": "6.36.4",
+    "framer-motion": "12.0.0",
+    "clsx": "2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.9.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "@types/three": "0.169.0",
+    "typescript": "5.6.3",
+    "sass": "1.80.6"
+  }
+}

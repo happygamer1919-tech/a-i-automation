@@ -1,0 +1,51 @@
+:root {
+  /* Core palette — A & I cyberpunk */
+  --blue-500: #0000ff;           /* "A" — Andrew */
+  --blue-400: #2a5bff;
+  --blue-300: #4f7cff;
+  --blue-glow: #3a6bff;
+
+  --purple-500: #5a008d;          /* "I" — Ivan */
+  --purple-400: #7a1bb8;
+  --purple-300: #9f3ee0;
+  --purple-glow: #a855f7;
+
+  --magenta-500: #d010ff;
+
+  --ink-0: #050514;               /* deepest void */
+  --ink-1: #0a0a1e;
+  --ink-2: #0f0f2a;
+  --ink-3: #151538;
+  --ink-4: #1f1f4a;
+
+  --white: #ffffff;
+  --off-white: #e6e8ff;
+  --grey-300: #9ea4c4;
+  --grey-500: #5c6080;
+
+  --scanline: rgba(170, 130, 255, 0.04);
+
+  /* Semantic */
+  --bg: var(--ink-0);
+  --bg-alt: var(--ink-1);
+  --text: var(--off-white);
+  --text-dim: var(--grey-300);
+  --accent-a: var(--blue-400);
+  --accent-i: var(--purple-400);
+  --accent-glow-a: var(--blue-glow);
+  --accent-glow-i: var(--purple-glow);
+
+  /* Type */
+  --font-display: var(--font-orbitron), 'Orbitron', system-ui, sans-serif;
+  --font-mono: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: var(--font-inter), 'Inter', system-ui, sans-serif;
+
+  /* Layout */
+  --container: 1280px;
+  --gutter: clamp(1.25rem, 3vw, 2.5rem);
+
+  /* Motion */
+  --ease-out-cyber: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-cyber: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out-cyber: cubic-bezier(0.83, 0, 0.17, 1);
+}
