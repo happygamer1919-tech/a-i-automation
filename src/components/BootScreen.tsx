@@ -18,26 +18,53 @@ export function BootScreen() {
   ];
 
   useEffect(() => {
-    // Session-scoped: only show once per tab
-    if (typeof window !== 'undefined' && sessionStorage.getItem('boot_done') === '1') {
+    if (typeof window === 'undefined') return;
+
+    // Skip entirely: already seen this tab, or the user prefers reduced motion.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (sessionStorage.getItem('boot_done') === '1' || reduceMotion) {
       setPhase('done');
       return;
     }
+
+    let fadeTimer: ReturnType<typeof setTimeout>;
+    let doneTimer: ReturnType<typeof setTimeout>;
+
+    const finish = () => {
+      clearInterval(interval);
+      clearTimeout(fadeTimer);
+      setLineIndex(lines.length - 1);
+      setPhase('fading');
+      sessionStorage.setItem('boot_done', '1');
+      doneTimer = setTimeout(() => setPhase('done'), 400);
+      window.removeEventListener('keydown', onSkip);
+      window.removeEventListener('pointerdown', onSkip);
+    };
+    // Let the visitor skip the intro with any key or tap.
+    const onSkip = () => finish();
+
+    // Total normal run stays under ~1s (5 lines x 90ms + 200ms hold + 400ms fade).
     const interval = setInterval(() => {
       setLineIndex((i) => {
         if (i >= lines.length - 1) {
           clearInterval(interval);
-          setTimeout(() => {
-            setPhase('fading');
-            sessionStorage.setItem('boot_done', '1');
-            setTimeout(() => setPhase('done'), 900);
-          }, 650);
+          fadeTimer = setTimeout(finish, 200);
           return i;
         }
         return i + 1;
       });
-    }, 520);
-    return () => clearInterval(interval);
+    }, 90);
+
+    window.addEventListener('keydown', onSkip);
+    window.addEventListener('pointerdown', onSkip);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(fadeTimer);
+      clearTimeout(doneTimer);
+      window.removeEventListener('keydown', onSkip);
+      window.removeEventListener('pointerdown', onSkip);
+    };
     // Intentionally run only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

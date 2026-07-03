@@ -6,7 +6,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  transition: opacity 0.9s ease, filter 0.9s ease;
+  transition: opacity 0.4s ease, filter 0.4s ease;
 }
 
 .fading { opacity: 0; filter: blur(10px); pointer-events: none; }

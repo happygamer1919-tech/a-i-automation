@@ -57,7 +57,11 @@ export function Hero() {
     if (target && lenis) lenis.scrollTo(target, { offset: -72, duration: 1.6 });
   };
 
-  const words = t.hero_title.split(' ');
+  // Keep the emphasized trailing phrase (last two words) on one line so a short
+  // word like "ta" never orphans alone. Each unit stays a `.word` for the stagger.
+  const allWords = t.hero_title.split(' ');
+  const leadWords = allWords.slice(0, -2);
+  const tailPhrase = allWords.slice(-2).join(' ');
 
   return (
     <section id="hero" className={styles.hero}>
@@ -75,11 +79,14 @@ export function Hero() {
       <div className={`container ${styles.content}`}>
         <div className={`eyebrow ${styles.kicker}`}>{t.hero_kicker}</div>
         <h1 ref={titleRef} className={styles.title}>
-          {words.map((w, i) => (
+          {leadWords.map((w, i) => (
             <span key={i} className={styles.word}>
-              <span className={i >= words.length - 2 ? 'gradient-text' : ''}>{w}</span>{' '}
+              <span>{w}</span>{' '}
             </span>
           ))}
+          <span className={styles.word}>
+            <span className="gradient-text" style={{ whiteSpace: 'nowrap' }}>{tailPhrase}</span>
+          </span>
         </h1>
         <p className={styles.sub}>{t.hero_sub}</p>
 

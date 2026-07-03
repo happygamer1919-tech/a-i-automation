@@ -8,8 +8,11 @@ import styles from './Contact.module.css';
 
 // TODO: replace with real Formspree ID when provided by user
 const FORMSPREE_ID = 'your-form-id';
-// TODO: replace with real Calendly URL when provided by user
-const CALENDLY_URL = 'https://calendly.com/';
+// TODO: replace with real Calendly URL when provided by user (Q2).
+// Until a real booking link exists, the "book a call" button falls back to a
+// phone call instead of a dead calendly.com landing page.
+const CALENDLY_URL = '';
+const PHONE_TEL = 'tel:+37368872444';
 
 export function Contact() {
   const { t } = useLang();
@@ -30,7 +33,7 @@ export function Contact() {
       const body = encodeURIComponent(
         `Name: ${name}\nPhone: ${phone}\nCompany: ${company}\n\nDescription:\n${description}`,
       );
-      window.location.href = `mailto:info@a-iautomation.com?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:info@a-and-i-automation.com?subject=${subject}&body=${body}`;
       return;
     }
 
@@ -87,8 +90,12 @@ export function Contact() {
               <button className="btn btn-primary" type="submit" disabled={status === 'sending'}>
                 {submitLabel} <span className="arrow">→</span>
               </button>
-              <a className="btn btn-ghost hud" href={CALENDLY_URL} target="_blank" rel="noreferrer">
-                {t.book_call} <span className="arrow">↗</span>
+              <a
+                className="btn btn-ghost hud"
+                href={CALENDLY_URL || PHONE_TEL}
+                {...(CALENDLY_URL ? { target: '_blank', rel: 'noreferrer' } : {})}
+              >
+                {t.book_call} <span className="arrow">{CALENDLY_URL ? '↗' : '☎'}</span>
               </a>
             </div>
           </form>
@@ -109,7 +116,7 @@ export function Contact() {
                   <path d="M2 7L12 13L22 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
-              <a href="mailto:info@a-iautomation.com">info@a-iautomation.com</a>
+              <a href="mailto:info@a-and-i-automation.com">info@a-and-i-automation.com</a>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoIcon}>
