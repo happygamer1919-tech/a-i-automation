@@ -3,9 +3,10 @@
   "configurations": [
     {
       "name": "a-i-automation",
-      "runtimeExecutable": "/Users/ivan/.local/bin/npm",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }
