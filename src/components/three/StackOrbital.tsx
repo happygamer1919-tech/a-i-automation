@@ -38,6 +38,21 @@ const CATEGORY_COLORS: Record<Node['category'], string> = {
 function Orbital() {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+
+  // Category of the hovered node — same-category nodes are treated as connected.
+  const hoveredCategory = hovered
+    ? NODES.find((n) => n.name === hovered)?.category ?? null
+    : null;
+
+  // Live (group-local) position of every node, written each frame by the nodes
+  // and read by <Connections> so the connecting lines track the orbit.
+  const positionsRef = useRef<Record<string, THREE.Vector3>>({});
+  if (Object.keys(positionsRef.current).length === 0) {
+    NODES.forEach((n) => {
+      positionsRef.current[n.name] = new THREE.Vector3();
+    });
+  }
 
   const placed = useMemo(() => {
     const byRing: Record<number, Node[]> = {};
@@ -96,9 +111,70 @@ function Orbital() {
           speed={p.speed}
           setHovered={setHovered}
           hovered={hovered}
+          hoveredCategory={hoveredCategory}
+          reducedMotion={reducedMotion}
+          positionsRef={positionsRef}
         />
       ))}
+
+      <Connections
+        hovered={hovered}
+        hoveredCategory={hoveredCategory}
+        positionsRef={positionsRef}
+      />
     </group>
+  );
+}
+
+function Connections({
+  hovered,
+  hoveredCategory,
+  positionsRef,
+}: {
+  hovered: string | null;
+  hoveredCategory: Node['category'] | null;
+  positionsRef: { current: Record<string, THREE.Vector3> };
+}) {
+  const lineRef = useRef<THREE.LineSegments>(null);
+  // One segment per potential peer link; two vertices (xyz each) per segment.
+  const positions = useMemo(() => new Float32Array(NODES.length * 2 * 3), []);
+
+  useFrame(() => {
+    const line = lineRef.current;
+    if (!line) return;
+    const origin = hovered ? positionsRef.current[hovered] : null;
+    if (!hovered || !hoveredCategory || !origin) {
+      line.visible = false;
+      return;
+    }
+    let seg = 0;
+    NODES.forEach((n) => {
+      if (n.category !== hoveredCategory || n.name === hovered) return;
+      const p = positionsRef.current[n.name];
+      if (!p) return;
+      const base = seg * 6;
+      positions[base] = origin.x;
+      positions[base + 1] = origin.y;
+      positions[base + 2] = origin.z;
+      positions[base + 3] = p.x;
+      positions[base + 4] = p.y;
+      positions[base + 5] = p.z;
+      seg++;
+    });
+    const attr = line.geometry.getAttribute('position') as THREE.BufferAttribute;
+    attr.needsUpdate = true;
+    line.geometry.setDrawRange(0, seg * 2);
+    (line.material as THREE.LineBasicMaterial).color.set(CATEGORY_COLORS[hoveredCategory]);
+    line.visible = seg > 0;
+  });
+
+  return (
+    <lineSegments ref={lineRef} frustumCulled={false} visible={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <lineBasicMaterial transparent opacity={0.7} toneMapped={false} />
+    </lineSegments>
   );
 }
 
@@ -110,6 +186,9 @@ function OrbitingNode({
   speed,
   setHovered,
   hovered,
+  hoveredCategory,
+  reducedMotion,
+  positionsRef,
 }: {
   node: Node;
   radius: number;
@@ -118,10 +197,17 @@ function OrbitingNode({
   speed: number;
   setHovered: (n: string | null) => void;
   hovered: string | null;
+  hoveredCategory: Node['category'] | null;
+  reducedMotion: boolean;
+  positionsRef: { current: Record<string, THREE.Vector3> };
 }) {
   const ref = useRef<THREE.Group>(null);
   const color = CATEGORY_COLORS[node.category];
   const isActive = hovered === node.name;
+  // Same-category peers of the hovered node read as "connected" and stay lit;
+  // everything else dims so the highlighted cluster reads.
+  const isRelated = hoveredCategory !== null && node.category === hoveredCategory;
+  const isDimmed = hovered !== null && !isRelated;
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
@@ -130,7 +216,19 @@ function OrbitingNode({
     ref.current.position.x = Math.cos(a) * radius;
     ref.current.position.z = Math.sin(a) * radius;
     ref.current.position.y = Math.sin(t * 0.5 + offset) * 0.1;
+    // Publish live position for the connecting lines.
+    positionsRef.current[node.name]?.copy(ref.current.position);
+    // Gentle hover pulse — animation only; suppressed under reduced motion.
+    const pulse = isActive && !reducedMotion ? 1 + Math.sin(t * 4) * 0.06 : 1;
+    ref.current.scale.setScalar(pulse);
   });
+
+  // Always restore the cursor when this node unmounts mid-hover.
+  useEffect(() => {
+    return () => {
+      document.body.style.cursor = '';
+    };
+  }, []);
 
   return (
     <group ref={ref}>
@@ -146,11 +244,15 @@ function OrbitingNode({
         }}
       >
         <sphereGeometry args={[isActive ? 0.16 : 0.11, 16, 16]} />
-        <meshBasicMaterial color={color} />
+        <meshBasicMaterial color={color} transparent opacity={isDimmed ? 0.4 : 1} />
       </mesh>
       <mesh>
         <sphereGeometry args={[0.22, 16, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={isActive ? 0.35 : 0.18} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={isActive ? 0.4 : isRelated ? 0.3 : isDimmed ? 0.06 : 0.18}
+        />
       </mesh>
       <Html center distanceFactor={8} zIndexRange={[10, 0]}>
         <div
@@ -166,6 +268,7 @@ function OrbitingNode({
             transform: 'translateY(22px)',
             pointerEvents: 'none',
             textShadow: '0 0 8px rgba(0,0,0,0.8)',
+            opacity: isDimmed ? 0.35 : 1,
           }}
         >
           {node.name}
@@ -184,6 +287,18 @@ function PointerTilt({ baseZ }: { baseZ: number }) {
     camera.lookAt(0, 0, 0);
   });
   return null;
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return reduced;
 }
 
 function useResponsiveCameraZ() {
