@@ -87,12 +87,16 @@ export type Dict = {
   why_2: string;
   why_3: string;
   why_4: string;
-  impact_title: string;
-  impact_hours: string;
-  impact_saved: string;
-  impact_agents: string;
-  impact_uptime: string;
-  impact_note: string;
+  offer_label: string;
+  offer_badge: string;
+  offer_title: string;
+  offer_lead: string;
+  offer_1: string;
+  offer_2: string;
+  offer_3: string;
+  offer_4: string;
+  offer_cta: string;
+  offer_note: string;
 
   contact_label: string;
   contact_title: string;
@@ -196,12 +200,16 @@ const ro: Dict = {
   why_2: 'Fiecare automatizare e testată înainte de a ajunge în operațiunile tale',
   why_3: 'Predăm totul documentat și cu training — nu depinzi de noi ca să funcționeze',
   why_4: 'Suport și optimizare continuă — nu doar livrare și plecare',
-  impact_title: 'Impact cuantificabil',
-  impact_hours: 'Ore economisite pentru clienți',
-  impact_saved: 'Cost operațional redus',
-  impact_agents: 'Agenți AI în producție',
-  impact_uptime: 'Disponibilitate garantată',
-  impact_note: 'Datele se actualizează pe măsură ce proiectele se încheie.',
+  offer_label: '// CLIENȚI FONDATORI',
+  offer_badge: 'LOCURI LIMITATE',
+  offer_title: 'Devino client fondator',
+  offer_lead: 'Preluăm un număr limitat de clienți fondatori, în condiții preferențiale, în schimbul unui studiu de caz public documentat.',
+  offer_1: 'Locuri limitate — doar câțiva parteneri în această etapă',
+  offer_2: 'Preț preferențial de fondator, fixat de la început',
+  offer_3: 'Un studiu de caz public, documentat, al proiectului nostru comun',
+  offer_4: 'Acces direct la fondatori, de la primul apel până la livrare',
+  offer_cta: 'Rezervă un loc de fondator',
+  offer_note: 'Etapă de fondatori — locuri limitate.',
 
   contact_label: '// CONTACT',
   contact_title: 'Hai să discutăm',
@@ -305,12 +313,16 @@ const ru: Dict = {
   why_2: 'Каждая автоматизация протестирована до того, как попадёт в ваши операции',
   why_3: 'Передаём всё с документацией и обучением — вы не зависите от нас для работы',
   why_4: 'Постоянная поддержка и оптимизация — не просто доставка и уход',
-  impact_title: 'Измеримый результат',
-  impact_hours: 'Сэкономлено часов для клиентов',
-  impact_saved: 'Снижение операционных затрат',
-  impact_agents: 'AI-агентов в продакшене',
-  impact_uptime: 'Гарантированная доступность',
-  impact_note: 'Данные обновляются по мере завершения проектов.',
+  offer_label: '// КЛИЕНТЫ-ОСНОВАТЕЛИ',
+  offer_badge: 'МЕСТ ОГРАНИЧЕНО',
+  offer_title: 'Станьте клиентом-основателем',
+  offer_lead: 'Мы берём ограниченное число клиентов-основателей на преференциальных условиях — в обмен на публичный, документированный кейс.',
+  offer_1: 'Ограниченное число мест — всего несколько партнёров в этом наборе',
+  offer_2: 'Преференциальная цена основателя, зафиксированная сразу',
+  offer_3: 'Публичный, документированный кейс нашего совместного проекта',
+  offer_4: 'Прямой доступ к основателям — от первого звонка до запуска',
+  offer_cta: 'Занять место основателя',
+  offer_note: 'Набор основателей — мест ограничено.',
 
   contact_label: '// КОНТАКТ',
   contact_title: 'Давайте обсудим',
@@ -414,12 +426,16 @@ const en: Dict = {
   why_2: 'Every automation is tested before it reaches your operations',
   why_3: "We hand over everything documented with training — you don't depend on us to run it",
   why_4: 'Ongoing support and optimization — not just delivery and departure',
-  impact_title: 'Measurable impact',
-  impact_hours: 'Hours saved for clients',
-  impact_saved: 'Operational cost reduced',
-  impact_agents: 'AI agents in production',
-  impact_uptime: 'Guaranteed uptime',
-  impact_note: 'Data updates as projects wrap.',
+  offer_label: '// FOUNDING CLIENTS',
+  offer_badge: 'LIMITED SLOTS',
+  offer_title: 'Become a founding client',
+  offer_lead: "We're taking on a limited number of founding clients at preferential terms — in exchange for a documented, public case study.",
+  offer_1: 'Limited founding slots — only a few partners this cohort',
+  offer_2: 'Preferential founder pricing, locked in from the start',
+  offer_3: 'A documented, public case study of the work we do together',
+  offer_4: 'Direct access to the founders, from first call to launch',
+  offer_cta: 'Claim a founding spot',
+  offer_note: 'Founding cohort — limited availability.',
 
   contact_label: '// CONTACT',
   contact_title: "Let's talk",

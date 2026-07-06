@@ -1,60 +1,23 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useLang } from '@/lib/LangProvider';
 import { useReveal } from '@/hooks/useReveal';
 import { SectionHeader } from '@/components/SectionHeader';
 import styles from './WhyUs.module.css';
-
-function CountUp({ to, suffix = '', duration = 1600 }: { to: number; suffix?: string; duration?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [val, setVal] = useState(0);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let started = false;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started) {
-          started = true;
-          const start = performance.now();
-          const step = (now: number) => {
-            const t = Math.min(1, (now - start) / duration);
-            const eased = 1 - Math.pow(1 - t, 3);
-            setVal(Math.round(to * eased));
-            if (t < 1) requestAnimationFrame(step);
-          };
-          requestAnimationFrame(step);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.3 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [to, duration]);
-
-  return (
-    <span ref={ref}>
-      {val.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
 
 export function WhyUs() {
   const { t } = useLang();
   const ref = useReveal<HTMLDivElement>();
 
   const reasons = [t.why_1, t.why_2, t.why_3, t.why_4];
+  const offerPoints = [t.offer_1, t.offer_2, t.offer_3, t.offer_4];
 
-  const stats = [
-    { value: 12000, suffix: '+', label: t.impact_hours },
-    { value: 42, suffix: '%', label: t.impact_saved },
-    { value: 18, suffix: '', label: t.impact_agents },
-    { value: 99.9, suffix: '%', label: t.impact_uptime, float: true },
-  ];
+  const goContact = () => {
+    const target = document.getElementById('contact');
+    const lenis = (window as unknown as { __lenis?: { scrollTo: (t: HTMLElement, o?: unknown) => void } }).__lenis;
+    if (target && lenis) lenis.scrollTo(target, { offset: -72, duration: 1.6 });
+    else if (target) target.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <section id="why-us" className={styles.section}>
@@ -75,36 +38,25 @@ export function WhyUs() {
             ))}
           </ul>
 
-          <aside className={`${styles.impact} hud`} data-reveal>
-            <div className={styles.impactHeader}>
-              <span className="eyebrow">{t.impact_title}</span>
-              <span className={styles.live}>◆ LIVE</span>
+          <aside className={`${styles.offer} hud`} data-reveal>
+            <div className={styles.offerHeader}>
+              <span className="eyebrow">{t.offer_label}</span>
+              <span className={styles.badge}>◆ {t.offer_badge}</span>
             </div>
-            <div className={styles.statGrid}>
-              {stats.map((s, i) => (
-                <div key={i} className={styles.stat}>
-                  <div className={styles.statValue}>
-                    {s.float ? (
-                      <>
-                        <CountUp to={Math.floor(s.value)} />
-                        <span>.9</span>
-                        {s.suffix}
-                      </>
-                    ) : (
-                      <>
-                        <CountUp to={s.value} />
-                        {s.suffix}
-                      </>
-                    )}
-                  </div>
-                  <div className={styles.statLabel}>{s.label}</div>
-                  <div className={styles.statBar}>
-                    <span style={{ animationDelay: `${i * 0.15}s` }} />
-                  </div>
-                </div>
+            <h3 className={styles.offerTitle}>{t.offer_title}</h3>
+            <p className={styles.offerLead}>{t.offer_lead}</p>
+            <ul className={styles.offerList}>
+              {offerPoints.map((p, i) => (
+                <li key={i} className={styles.offerItem}>
+                  <span className={styles.offerBullet} />
+                  <span>{p}</span>
+                </li>
               ))}
-            </div>
-            <div className={styles.note}>{t.impact_note}</div>
+            </ul>
+            <button type="button" className={`btn btn-primary ${styles.offerCta}`} onClick={goContact}>
+              {t.offer_cta} <span className="arrow">→</span>
+            </button>
+            <div className={styles.note}>{t.offer_note}</div>
           </aside>
         </div>
       </div>
