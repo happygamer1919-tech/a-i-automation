@@ -32,6 +32,11 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # Static site posts leads here; the proxy holds the Telegram token.
+          # Until the proxy's env vars are set it returns 503 and the form
+          # gracefully falls back to opening the visitor's mail client.
+          NEXT_PUBLIC_LEAD_ENDPOINT: https://ai-lead-proxy.vercel.app/api/lead
 
       - name: Add .nojekyll
         run: touch out/.nojekyll

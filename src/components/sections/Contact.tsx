@@ -6,8 +6,9 @@ import { useReveal } from '@/hooks/useReveal';
 import { SectionHeader } from '@/components/SectionHeader';
 import styles from './Contact.module.css';
 
-// TODO: replace with real Formspree ID when provided by user
-const FORMSPREE_ID = 'your-form-id';
+// Serverless proxy that forwards the lead to Telegram (see /lead-proxy).
+// Set at build time; when unset the form falls back to opening the mail client.
+const LEAD_ENDPOINT = process.env.NEXT_PUBLIC_LEAD_ENDPOINT || '';
 // TODO: replace with real Calendly URL when provided by user (Q2).
 // Until a real booking link exists, the "book a call" button falls back to a
 // phone call instead of a dead calendly.com landing page.
@@ -15,9 +16,22 @@ const CALENDLY_URL = '';
 const PHONE_TEL = 'tel:+37368872444';
 
 export function Contact() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const ref = useReveal<HTMLDivElement>();
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+
+  const mailtoFallback = (
+    name: string,
+    phone: string,
+    company: string,
+    description: string,
+  ) => {
+    const subject = encodeURIComponent(`Audit Request from ${name} - ${company}`);
+    const body = encodeURIComponent(
+      `Name: ${name}\nPhone: ${phone}\nCompany: ${company}\n\nDescription:\n${description}`,
+    );
+    window.location.href = `mailto:info@a-and-i-automation.com?subject=${subject}&body=${body}`;
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,31 +41,32 @@ export function Contact() {
     const phone = String(data.get('phone') || '');
     const company = String(data.get('company') || '');
     const description = String(data.get('description') || '');
+    const website = String(data.get('website') || ''); // honeypot
 
-    if (FORMSPREE_ID === 'your-form-id') {
-      const subject = encodeURIComponent(`Audit Request from ${name} - ${company}`);
-      const body = encodeURIComponent(
-        `Name: ${name}\nPhone: ${phone}\nCompany: ${company}\n\nDescription:\n${description}`,
-      );
-      window.location.href = `mailto:info@a-and-i-automation.com?subject=${subject}&body=${body}`;
+    // No endpoint configured yet → open the visitor's mail client.
+    if (!LEAD_ENDPOINT) {
+      mailtoFallback(name, phone, company, description);
       return;
     }
 
     setStatus('sending');
     try {
-      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      const res = await fetch(LEAD_ENDPOINT, {
         method: 'POST',
-        body: data,
-        headers: { Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, company, description, website, lang }),
       });
       if (res.ok) {
         setStatus('sent');
         form.reset();
-      } else {
-        setStatus('idle');
+        return;
       }
+      // Endpoint reachable but not delivering (e.g. not configured) → fall back.
+      setStatus('idle');
+      mailtoFallback(name, phone, company, description);
     } catch {
       setStatus('idle');
+      mailtoFallback(name, phone, company, description);
     }
   };
 
@@ -68,6 +83,15 @@ export function Contact() {
             <div className={styles.formHead}>
               <span className={styles.hudDot} /> NEW_TRANSMISSION.exe
             </div>
+            {/* Honeypot: hidden from humans, catches spam bots. */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+            />
             <div className={styles.grid}>
               <label className={styles.field}>
                 <span>{t.form_name}</span>

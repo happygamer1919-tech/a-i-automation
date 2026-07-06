@@ -30,5 +30,33 @@ No-secret Phase 0 items, verified in-browser (desktop 1280 + mobile 375):
 - P0-2 email: info@a-iautomation.com (wrong domain) → info@a-and-i-automation.com everywhere (display + mailto). DELIVERABILITY STILL UNVERIFIED — owner must confirm the mailbox receives mail (Q3).
 Still blocked: P0-3 (Telegram form) needs a serverless proxy + bot token/chat ID; P0-1 final needs the real booking URL.
 Interim form behavior unchanged: submit opens the visitor's mail client (mailto) to the corrected on-domain address — acceptable stopgap until the Telegram proxy is wired.
+
+## 2026-07-03 — Next.js bumped 15.1.6 → 15.5.20 (security)
+Vercel refuses to deploy 15.1.6 (known vulnerabilities). Bumped to latest patched 15.x (stayed on 15 major to avoid Next 16 breaking changes). Build passes; site renders unchanged (verified in-browser). Committed to the P0 hotfix branch since it's a genuine security fix. Note: this also protects the live GitHub Pages build.
+
+## 2026-07-03 — Owner chose Vercel migration; preview stood up
+Owner picked "Move hosting to Vercel" for the form backend + per-change preview URLs.
+- Vercel CLI was already installed + authed on this machine as `sm33xy`.
+- Created Vercel project `a-i-automation-preview` under team_9FbititzwsoPg8MtvTxY6Nq3 (projectId prj_yYxiP4wnX5uwxzXbCmCXvXCFN8uT), deployed branch site/p0-hotfixes-safe.
+- Disabled ssoProtection so the owner can view the preview without a Vercel login.
+- Live preview: https://a-i-automation-preview-bq0g8gmv0-sm33xys-projects.vercel.app (posted to PR #1).
+- GitHub repo → Vercel git-integration connect FAILED (sm33xy lacks admin on happygamer1919-tech/a-i-automation). To get automatic per-PR previews + production, the repo owner must import the repo in the Vercel dashboard (or grant access).
+CAVEAT: this preview project lives under the sm33xy personal Vercel account. For the real migration, the production project should live under the OWNER's Vercel account/team, with the domain a-and-i-automation.com moved there (DNS change at registrar) and the GitHub Pages workflow retired. Not done yet — needs owner.
+
+## 2026-07-03 — P0-3 lead form wired to Telegram (via standalone proxy)
+Because production is still static (GitHub Pages can't run a server), the form backend is a standalone serverless function in `/lead-proxy`, deployed separately — the site stays static, the bot token never reaches the browser.
+- Proxy live: https://ai-lead-proxy.vercel.app/api/lead (Vercel project `ai-lead-proxy`, sm33xy account for now). SSO disabled; CORS echoes caller origin by default.
+- Verified: browser + curl reach it, correct CORS, returns 503 `not_configured` until env vars are set. Includes honeypot + required-field validation.
+- Site (`Contact.tsx`) POSTs to `NEXT_PUBLIC_LEAD_ENDPOINT`; on any failure/unconfigured it falls back to opening the visitor's mail client (info@a-and-i-automation.com). Endpoint baked into the GitHub Pages build via `.github/workflows/deploy.yml`.
+- TO ACTIVATE (owner): provide Telegram bot token + chat id → set `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` on the `ai-lead-proxy` Vercel project → redeploy. No site rebuild needed (URL is stable). Ideally the proxy later moves to the owner's own Vercel account.
+
+## 2026-07-03 — Shared permission allowlist added (.claude/settings.json)
+Added a committed `.claude/settings.json` with `defaultMode: acceptEdits` and an allowlist for common safe commands (npm/git/gh/vercel/node/preview tools) so all of the owner's Claude terminals in this repo stop prompting for routine actions. Dangerous ops (force push, hard reset, rm -rf /) explicitly denied.
+
+## Migration TODO (Vercel cutover — needs owner actions, not yet done)
+1. Owner creates/uses their own Vercel account and imports happygamer1919-tech/a-i-automation (auto-detects Next.js).
+2. Build the Telegram form as a Next.js route handler; make `output: 'export'` conditional so GitHub Pages (static) and Vercel (server) can coexist during transition.
+3. Set env vars in Vercel: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID.
+4. Point a-and-i-automation.com DNS at Vercel; remove/disable .github/workflows/deploy.yml (GitHub Pages).
 `/Users/sm33xy/Projects/A&I Web` contains no source and is not a git repo.
 Implication: source code location (Open Question 1) is the gating input. If no source is provided, rebuild from scratch on Next.js App Router per the plan.
