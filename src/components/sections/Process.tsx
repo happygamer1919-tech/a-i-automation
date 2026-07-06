@@ -35,13 +35,17 @@ export function Process() {
 
       const distance = () => rail.scrollWidth - window.innerWidth + 80;
 
+      // Compresses pin duration relative to rail travel: the rail still moves
+      // its full width, but over a shorter vertical scroll.
+      const SCROLL_RATIO = 0.6;
+
       const tween = gsap.to(rail, {
         x: () => -distance(),
         ease: 'none',
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: () => `+=${distance()}`,
+          end: () => `+=${distance() * SCROLL_RATIO}`,
           pin: true,
           scrub: 1,
           invalidateOnRefresh: true,
