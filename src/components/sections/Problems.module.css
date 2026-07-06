@@ -44,7 +44,6 @@
   margin-bottom: 1rem;
 }
 .idx { color: var(--purple-300); font-size: 1rem; text-shadow: 0 0 10px var(--purple-glow); }
-.tag { color: var(--blue-300); }
 
 .icon {
   width: 44px; height: 44px;
@@ -55,25 +54,3 @@
 .icon svg { width: 100%; height: 100%; }
 
 .text { font-size: 0.96rem; line-height: 1.45; margin-bottom: 1.25rem; }
-
-.progress {
-  height: 2px;
-  width: 100%;
-  background: rgba(168, 85, 247, 0.15);
-  overflow: hidden;
-  position: relative;
-}
-.progress span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--blue-400), var(--purple-400));
-  box-shadow: 0 0 8px var(--purple-glow);
-}
-
-.progressLabel {
-  margin-top: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
-  color: var(--grey-500);
-}

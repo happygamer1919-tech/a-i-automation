@@ -27,14 +27,9 @@ export function Problems() {
             <div key={i} className={`${styles.card} hud`} data-reveal data-reveal-index={i}>
               <div className={styles.meta}>
                 <span className={styles.idx}>0{i + 1}</span>
-                <span className={styles.tag}>ERR · {(i + 1) * 137}ms</span>
               </div>
               <div className={styles.icon}>{ICONS[i]}</div>
               <p className={styles.text}>{text}</p>
-              <div className={styles.progress}>
-                <span style={{ width: `${65 + i * 8}%` }} />
-              </div>
-              <div className={styles.progressLabel}>TIME_LOSS · {65 + i * 8}%</div>
             </div>
           ))}
         </div>
