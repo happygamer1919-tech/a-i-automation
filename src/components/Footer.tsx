@@ -64,7 +64,6 @@ export function Footer() {
       </div>
 
       <div className={styles.baseline}>
-        <span>SYSTEM_STATUS · OPERATIONAL</span>
         <span>LAT 47.01°N · LON 28.86°E</span>
         <span>BUILD 2026.04</span>
       </div>

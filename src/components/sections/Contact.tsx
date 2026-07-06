@@ -80,9 +80,6 @@ export function Contact() {
 
         <div className={styles.wrap}>
           <form className={`${styles.form} hud`} onSubmit={onSubmit} data-reveal>
-            <div className={styles.formHead}>
-              <span className={styles.hudDot} /> NEW_TRANSMISSION.exe
-            </div>
             {/* Honeypot: hidden from humans, catches spam bots. */}
             <input
               type="text"
