@@ -54,11 +54,11 @@ export function Navbar() {
           <ul className={styles.links}>
             {NAV_LINKS.map((l) => (
               <li key={l.id}>
-                <button onClick={() => goTo(l.id)}>
+                <a href={`#${l.id}`} onClick={(e) => { e.preventDefault(); goTo(l.id); }}>
                   <span className={styles.linkBracket}>[</span>
                   {t[l.key]}
                   <span className={styles.linkBracket}>]</span>
-                </button>
+                </a>
               </li>
             ))}
           </ul>
