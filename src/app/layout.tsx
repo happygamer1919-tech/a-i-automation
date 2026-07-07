@@ -28,7 +28,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://a-and-i-automation.com'),
-  title: 'A&I Automation — Automatizare AI pentru afaceri din Moldova',
+  title: 'A&I Automation: Automatizare AI pentru afaceri din Moldova',
   description:
     'A&I Automation ajută afacerile din Moldova să elimine munca repetitivă cu instrumente AI, chatboți și agenți inteligenți.',
   icons: {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'A&I Automation',
-    description: 'AI tools, chatbots, and intelligent agents — deployed into your operations.',
+    description: 'AI tools, chatbots, and intelligent agents. Deployed into your operations.',
     type: 'website',
     url: 'https://a-and-i-automation.com',
     images: ['/logo.png'],
