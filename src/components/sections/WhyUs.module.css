@@ -50,7 +50,7 @@
 
 .itemText { color: var(--off-white); font-size: 0.98rem; line-height: 1.4; }
 
-.impact {
+.offer {
   padding: 1.6rem 1.4rem;
   background:
     linear-gradient(180deg, rgba(15,15,42,0.85), rgba(10,10,30,0.85));
@@ -58,7 +58,7 @@
   position: relative;
   overflow: hidden;
 }
-.impact::before {
+.offer::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -66,14 +66,16 @@
   pointer-events: none;
 }
 
-.impactHeader {
+.offerHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.live {
+.badge {
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.3em;
@@ -83,59 +85,60 @@
 }
 @keyframes livePulse { 50% { opacity: 0.45 } }
 
-.statGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.stat {
-  padding: 0.9rem 1rem;
-  background: rgba(5, 5, 20, 0.55);
-  border-left: 2px solid var(--purple-400);
-  position: relative;
-  overflow: hidden;
-}
-
-.statValue {
+.offerTitle {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
   background: linear-gradient(90deg, var(--blue-300), var(--purple-300));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  line-height: 1.1;
-  margin-bottom: 0.25rem;
   text-shadow: 0 0 18px rgba(168, 85, 247, 0.25);
-  display: flex;
-  align-items: baseline;
 }
-.statValue span { font-size: 0.7em; }
 
-.statLabel {
+.offerLead {
   color: var(--off-white);
-  opacity: 0.7;
-  font-size: 0.78rem;
-  line-height: 1.35;
+  opacity: 0.82;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
 }
 
-.statBar {
-  margin-top: 0.8rem;
-  height: 2px;
-  background: rgba(168, 85, 247, 0.12);
-  overflow: hidden;
+.offerList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
-.statBar span {
-  display: block;
-  height: 100%;
+
+.offerItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.75rem;
+  color: var(--off-white);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.offerBullet {
+  margin-top: 0.5em;
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--blue-400), var(--purple-400));
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.offerCta {
   width: 100%;
-  background: linear-gradient(90deg, var(--blue-400), var(--purple-400));
-  transform-origin: left;
-  animation: barFill 1.6s var(--ease-out-cyber) forwards;
-  transform: scaleX(0);
+  justify-content: center;
 }
-@keyframes barFill { to { transform: scaleX(1); } }
 
 .note {
   margin-top: 1.25rem;
@@ -147,8 +150,4 @@
 
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
-  .statGrid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 480px) {
-  .statGrid { grid-template-columns: 1fr; }
 }
