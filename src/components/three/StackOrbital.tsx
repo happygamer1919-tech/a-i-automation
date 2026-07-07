@@ -72,10 +72,23 @@ function Orbital() {
     return items;
   }, []);
 
-  useFrame(({ clock }) => {
+  // The orbit runs on its own clock so it can pause: while a node is hovered
+  // the speed factor eases to 0 (the "planet" holds still under the cursor,
+  // keeping the highlight and connection lines stable), then eases back to 1
+  // on unhover. Easing instead of a hard stop avoids the visible jerk.
+  const orbitTime = useRef(0);
+  const speedFactor = useRef(1);
+  useFrame((_, delta) => {
+    const target = hovered ? 0 : 1;
+    if (reducedMotion) {
+      speedFactor.current = target;
+    } else {
+      speedFactor.current += (target - speedFactor.current) * Math.min(1, delta * 5);
+    }
+    orbitTime.current += delta * speedFactor.current;
     if (!group.current) return;
-    group.current.rotation.y = clock.getElapsedTime() * 0.08;
-    group.current.rotation.x = Math.sin(clock.getElapsedTime() * 0.2) * 0.08;
+    group.current.rotation.y = orbitTime.current * 0.08;
+    group.current.rotation.x = Math.sin(orbitTime.current * 0.2) * 0.08;
   });
 
   return (
@@ -114,6 +127,7 @@ function Orbital() {
           hoveredCategory={hoveredCategory}
           reducedMotion={reducedMotion}
           positionsRef={positionsRef}
+          orbitTimeRef={orbitTime}
         />
       ))}
 
@@ -189,6 +203,7 @@ function OrbitingNode({
   hoveredCategory,
   reducedMotion,
   positionsRef,
+  orbitTimeRef,
 }: {
   node: Node;
   radius: number;
@@ -200,6 +215,7 @@ function OrbitingNode({
   hoveredCategory: Node['category'] | null;
   reducedMotion: boolean;
   positionsRef: { current: Record<string, THREE.Vector3> };
+  orbitTimeRef: { current: number };
 }) {
   const ref = useRef<THREE.Group>(null);
   const color = CATEGORY_COLORS[node.category];
@@ -211,15 +227,18 @@ function OrbitingNode({
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    const t = clock.getElapsedTime();
+    // Position runs on the shared pausable orbit clock (freezes on hover)…
+    const t = orbitTimeRef.current;
     const a = angle + t * speed + offset * 0.15;
     ref.current.position.x = Math.cos(a) * radius;
     ref.current.position.z = Math.sin(a) * radius;
     ref.current.position.y = Math.sin(t * 0.5 + offset) * 0.1;
     // Publish live position for the connecting lines.
     positionsRef.current[node.name]?.copy(ref.current.position);
-    // Gentle hover pulse — animation only; suppressed under reduced motion.
-    const pulse = isActive && !reducedMotion ? 1 + Math.sin(t * 4) * 0.06 : 1;
+    // …while the hover pulse runs on real time so it keeps breathing during
+    // the pause. Suppressed under reduced motion.
+    const pulse =
+      isActive && !reducedMotion ? 1 + Math.sin(clock.getElapsedTime() * 4) * 0.06 : 1;
     ref.current.scale.setScalar(pulse);
   });
 
