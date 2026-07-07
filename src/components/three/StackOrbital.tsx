@@ -35,9 +35,14 @@ const CATEGORY_COLORS: Record<Node['category'], string> = {
   comms: '#7ab0ff',
 };
 
-function Orbital() {
+function Orbital({
+  hovered,
+  setHovered,
+}: {
+  hovered: string | null;
+  setHovered: (n: string | null) => void;
+}) {
   const group = useRef<THREE.Group>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
 
   // Category of the hovered node — same-category nodes are treated as connected.
@@ -297,11 +302,17 @@ function OrbitingNode({
   );
 }
 
-function PointerTilt({ baseZ }: { baseZ: number }) {
+function PointerTilt({ baseZ, paused }: { baseZ: number; paused: boolean }) {
   const { camera } = useThree();
   useFrame(({ mouse }) => {
-    camera.position.x += (mouse.x * 1.5 - camera.position.x) * 0.04;
-    camera.position.y += (-mouse.y * 1 + 2 - camera.position.y) * 0.04;
+    // While a node is hovered the camera stops chasing the mouse — otherwise
+    // the whole scene keeps shifting under the cursor even with the orbit
+    // frozen, and the "planet" never truly holds still. Resuming lerps from
+    // the current position, so there is no jump either way.
+    if (!paused) {
+      camera.position.x += (mouse.x * 1.5 - camera.position.x) * 0.04;
+      camera.position.y += (-mouse.y * 1 + 2 - camera.position.y) * 0.04;
+    }
     camera.position.z += (baseZ - camera.position.z) * 0.08;
     camera.lookAt(0, 0, 0);
   });
@@ -339,6 +350,9 @@ function useResponsiveCameraZ() {
 
 export function StackOrbital() {
   const baseZ = useResponsiveCameraZ();
+  // Hover state lives here so BOTH moving systems can pause on it:
+  // the orbit (Orbital) and the mouse-chasing camera (PointerTilt).
+  const [hovered, setHovered] = useState<string | null>(null);
   return (
     <Canvas
       camera={{ position: [0, 2.2, baseZ], fov: 55 }}
@@ -348,8 +362,8 @@ export function StackOrbital() {
     >
       <Suspense fallback={null}>
         <ambientLight intensity={0.6} />
-        <Orbital />
-        <PointerTilt baseZ={baseZ} />
+        <Orbital hovered={hovered} setHovered={setHovered} />
+        <PointerTilt baseZ={baseZ} paused={hovered !== null} />
         <EffectComposer>
           <Bloom intensity={0.8} luminanceThreshold={0.2} luminanceSmoothing={0.85} mipmapBlur />
         </EffectComposer>
