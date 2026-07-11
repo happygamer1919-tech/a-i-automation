@@ -353,21 +353,32 @@ export function StackOrbital() {
   // Hover state lives here so BOTH moving systems can pause on it:
   // the orbit (Orbital) and the mouse-chasing camera (PointerTilt).
   const [hovered, setHovered] = useState<string | null>(null);
+  // The camera settles as soon as the cursor is anywhere over the scene —
+  // otherwise it keeps chasing the mouse while you AIM at a planet and the
+  // target slides away from the cursor. Planets keep orbiting until one is
+  // actually hovered.
+  const [pointerOver, setPointerOver] = useState(false);
   return (
-    <Canvas
-      camera={{ position: [0, 2.2, baseZ], fov: 55 }}
-      dpr={[1, 1.8]}
-      gl={{ antialias: true, alpha: true }}
+    <div
       style={{ position: 'absolute', inset: 0 }}
+      onPointerEnter={() => setPointerOver(true)}
+      onPointerLeave={() => setPointerOver(false)}
     >
-      <Suspense fallback={null}>
-        <ambientLight intensity={0.6} />
-        <Orbital hovered={hovered} setHovered={setHovered} />
-        <PointerTilt baseZ={baseZ} paused={hovered !== null} />
-        <EffectComposer>
-          <Bloom intensity={0.8} luminanceThreshold={0.2} luminanceSmoothing={0.85} mipmapBlur />
-        </EffectComposer>
-      </Suspense>
-    </Canvas>
+      <Canvas
+        camera={{ position: [0, 2.2, baseZ], fov: 55 }}
+        dpr={[1, 1.8]}
+        gl={{ antialias: true, alpha: true }}
+        style={{ position: 'absolute', inset: 0 }}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.6} />
+          <Orbital hovered={hovered} setHovered={setHovered} />
+          <PointerTilt baseZ={baseZ} paused={pointerOver || hovered !== null} />
+          <EffectComposer>
+            <Bloom intensity={0.8} luminanceThreshold={0.2} luminanceSmoothing={0.85} mipmapBlur />
+          </EffectComposer>
+        </Suspense>
+      </Canvas>
+    </div>
   );
 }
