@@ -38,11 +38,9 @@ const CATEGORY_COLORS: Record<Node['category'], string> = {
 function Orbital({
   hovered,
   setHovered,
-  paused,
 }: {
   hovered: string | null;
   setHovered: (n: string | null) => void;
-  paused: boolean;
 }) {
   const group = useRef<THREE.Group>(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -79,20 +77,13 @@ function Orbital({
     return items;
   }, []);
 
-  // The orbit runs on its own clock so it can pause: while the cursor is
-  // anywhere over the scene (paused) or a node is hovered, the speed factor
-  // eases to 0 so the planets become still, easy-to-click targets, then eases
-  // back to 1 when the cursor leaves. Easing avoids a visible jerk.
+  // The system never stops as a whole: the orbit clock always advances and the
+  // group keeps rotating. Only the HOVERED node freezes (each node compensates
+  // for the parent rotation itself, see OrbitingNode) — everything not under
+  // the cursor keeps living.
   const orbitTime = useRef(0);
-  const speedFactor = useRef(1);
   useFrame((_, delta) => {
-    const target = paused || hovered ? 0 : 1;
-    if (reducedMotion) {
-      speedFactor.current = target;
-    } else {
-      speedFactor.current += (target - speedFactor.current) * Math.min(1, delta * 5);
-    }
-    orbitTime.current += delta * speedFactor.current;
+    orbitTime.current += delta;
     if (!group.current) return;
     group.current.rotation.y = orbitTime.current * 0.08;
     group.current.rotation.x = Math.sin(orbitTime.current * 0.2) * 0.08;
@@ -232,21 +223,56 @@ function OrbitingNode({
   const isRelated = hoveredCategory !== null && node.category === hoveredCategory;
   const isDimmed = hovered !== null && !isRelated;
 
-  useFrame(({ clock }) => {
+  // Per-node freeze: while THIS node is hovered it holds its world position
+  // (compensating for the still-rotating parent group) and zooms in a touch.
+  // Every other node keeps orbiting. freezeBlend eases 0→1 on hover and back,
+  // so both freezing and rejoining the orbit are smooth, never a snap.
+  const frozenWorld = useRef(new THREE.Vector3());
+  const scratch = useRef(new THREE.Vector3());
+  const orbitPos = useRef(new THREE.Vector3());
+  const freezeBlend = useRef(0);
+  const wasActive = useRef(false);
+
+  useFrame(({ clock }, delta) => {
     if (!ref.current) return;
-    // Position runs on the shared pausable orbit clock (freezes on hover)…
     const t = orbitTimeRef.current;
     const a = angle + t * speed + offset * 0.15;
-    ref.current.position.x = Math.cos(a) * radius;
-    ref.current.position.z = Math.sin(a) * radius;
-    ref.current.position.y = Math.sin(t * 0.5 + offset) * 0.1;
+    orbitPos.current.set(
+      Math.cos(a) * radius,
+      Math.sin(t * 0.5 + offset) * 0.1,
+      Math.sin(a) * radius,
+    );
+
+    // Capture the on-screen position at the moment the hover starts.
+    if (isActive && !wasActive.current) {
+      ref.current.getWorldPosition(frozenWorld.current);
+      wasActive.current = true;
+    }
+    if (!isActive) wasActive.current = false;
+
+    const target = isActive ? 1 : 0;
+    freezeBlend.current = reducedMotion
+      ? target
+      : freezeBlend.current + (target - freezeBlend.current) * Math.min(1, delta * 10);
+
+    if (freezeBlend.current > 0.001 && ref.current.parent) {
+      // Local position that keeps the node pinned at frozenWorld even though
+      // the parent group keeps rotating underneath it.
+      scratch.current.copy(frozenWorld.current);
+      ref.current.parent.worldToLocal(scratch.current);
+      ref.current.position.lerpVectors(orbitPos.current, scratch.current, freezeBlend.current);
+    } else {
+      ref.current.position.copy(orbitPos.current);
+    }
+
     // Publish live position for the connecting lines.
     positionsRef.current[node.name]?.copy(ref.current.position);
-    // …while the hover pulse runs on real time so it keeps breathing during
-    // the pause. Suppressed under reduced motion.
+
+    // Zoom in while frozen (~35%), with a subtle breathing pulse on real time.
+    const zoom = 1 + freezeBlend.current * 0.35;
     const pulse =
-      isActive && !reducedMotion ? 1 + Math.sin(clock.getElapsedTime() * 4) * 0.06 : 1;
-    ref.current.scale.setScalar(pulse);
+      isActive && !reducedMotion ? 1 + Math.sin(clock.getElapsedTime() * 4) * 0.04 : 1;
+    ref.current.scale.setScalar(zoom * pulse);
   });
 
   // Always restore the cursor when this node unmounts mid-hover.
@@ -352,37 +378,25 @@ function useResponsiveCameraZ() {
 
 export function StackOrbital() {
   const baseZ = useResponsiveCameraZ();
-  // Hover state lives here so BOTH moving systems can pause on it:
-  // the orbit (Orbital) and the mouse-chasing camera (PointerTilt).
+  // Hover state lives here so the camera can settle while a node is held:
+  // only the hovered planet freezes (per-node, inside Orbital); the rest of
+  // the system keeps orbiting.
   const [hovered, setHovered] = useState<string | null>(null);
-  // The camera settles as soon as the cursor is anywhere over the scene —
-  // otherwise it keeps chasing the mouse while you AIM at a planet and the
-  // target slides away from the cursor. Planets keep orbiting until one is
-  // actually hovered.
-  const [pointerOver, setPointerOver] = useState(false);
   return (
-    <div
+    <Canvas
+      camera={{ position: [0, 2.2, baseZ], fov: 55 }}
+      dpr={[1, 1.8]}
+      gl={{ antialias: true, alpha: true }}
       style={{ position: 'absolute', inset: 0 }}
-      // Mouse only: on touch there is no hover, and pointerleave after a tap
-      // is unreliable, so a tap must never freeze the orbit permanently.
-      onPointerEnter={(e) => e.pointerType === 'mouse' && setPointerOver(true)}
-      onPointerLeave={(e) => e.pointerType === 'mouse' && setPointerOver(false)}
     >
-      <Canvas
-        camera={{ position: [0, 2.2, baseZ], fov: 55 }}
-        dpr={[1, 1.8]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <Suspense fallback={null}>
-          <ambientLight intensity={0.6} />
-          <Orbital hovered={hovered} setHovered={setHovered} paused={pointerOver} />
-          <PointerTilt baseZ={baseZ} paused={pointerOver || hovered !== null} />
-          <EffectComposer>
-            <Bloom intensity={0.8} luminanceThreshold={0.2} luminanceSmoothing={0.85} mipmapBlur />
-          </EffectComposer>
-        </Suspense>
-      </Canvas>
-    </div>
+      <Suspense fallback={null}>
+        <ambientLight intensity={0.6} />
+        <Orbital hovered={hovered} setHovered={setHovered} />
+        <PointerTilt baseZ={baseZ} paused={hovered !== null} />
+        <EffectComposer>
+          <Bloom intensity={0.8} luminanceThreshold={0.2} luminanceSmoothing={0.85} mipmapBlur />
+        </EffectComposer>
+      </Suspense>
+    </Canvas>
   );
 }
