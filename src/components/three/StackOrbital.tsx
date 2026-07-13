@@ -38,9 +38,11 @@ const CATEGORY_COLORS: Record<Node['category'], string> = {
 function Orbital({
   hovered,
   setHovered,
+  paused,
 }: {
   hovered: string | null;
   setHovered: (n: string | null) => void;
+  paused: boolean;
 }) {
   const group = useRef<THREE.Group>(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -77,14 +79,14 @@ function Orbital({
     return items;
   }, []);
 
-  // The orbit runs on its own clock so it can pause: while a node is hovered
-  // the speed factor eases to 0 (the "planet" holds still under the cursor,
-  // keeping the highlight and connection lines stable), then eases back to 1
-  // on unhover. Easing instead of a hard stop avoids the visible jerk.
+  // The orbit runs on its own clock so it can pause: while the cursor is
+  // anywhere over the scene (paused) or a node is hovered, the speed factor
+  // eases to 0 so the planets become still, easy-to-click targets, then eases
+  // back to 1 when the cursor leaves. Easing avoids a visible jerk.
   const orbitTime = useRef(0);
   const speedFactor = useRef(1);
   useFrame((_, delta) => {
-    const target = hovered ? 0 : 1;
+    const target = paused || hovered ? 0 : 1;
     if (reducedMotion) {
       speedFactor.current = target;
     } else {
@@ -361,8 +363,10 @@ export function StackOrbital() {
   return (
     <div
       style={{ position: 'absolute', inset: 0 }}
-      onPointerEnter={() => setPointerOver(true)}
-      onPointerLeave={() => setPointerOver(false)}
+      // Mouse only: on touch there is no hover, and pointerleave after a tap
+      // is unreliable, so a tap must never freeze the orbit permanently.
+      onPointerEnter={(e) => e.pointerType === 'mouse' && setPointerOver(true)}
+      onPointerLeave={(e) => e.pointerType === 'mouse' && setPointerOver(false)}
     >
       <Canvas
         camera={{ position: [0, 2.2, baseZ], fov: 55 }}
@@ -372,7 +376,7 @@ export function StackOrbital() {
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.6} />
-          <Orbital hovered={hovered} setHovered={setHovered} />
+          <Orbital hovered={hovered} setHovered={setHovered} paused={pointerOver} />
           <PointerTilt baseZ={baseZ} paused={pointerOver || hovered !== null} />
           <EffectComposer>
             <Bloom intensity={0.8} luminanceThreshold={0.2} luminanceSmoothing={0.85} mipmapBlur />
