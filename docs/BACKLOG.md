@@ -43,3 +43,25 @@ Branch naming: `site/<ticket-id>-<slug>`
 - **[P3-2] schema.org (LocalBusiness + Service)** — TODO
 - **[P3-3] hreflang RO/RU/EN + per-language metadata** — TODO
 - **[P3-4] Proper OG images** — TODO
+
+## Phase 4 — Performance
+
+- **[P4-3] Hero WebGL scene is main-thread bound without GPU acceleration** — TODO
+  Found while building the Playwright baseline. With hardware acceleration the page
+  behaves as designed: the boot overlay clears in 1.1–1.4s, matching its ~1s budget.
+  Without a GPU (headless Chromium on SwiftShader, and by extension low-end phones)
+  `HeroScene` emits continuous ~200ms long tasks — ~6.1s of blocked main thread at
+  1440×900, ~1.5s at 375×812. That starves `BootScreen`'s 90ms `setInterval`, so the
+  overlay lingers **6.4s** at 1440×900 and **2.6–3.2s** at 375×812 instead of ~1s.
+  The hero `<h1>` itself is never gated (in the DOM at 25–40ms), so this is a
+  perceived-speed and battery problem rather than a correctness one — but CLAUDE.md
+  forbids long preloaders, and on weak hardware this is one. Fix direction: cap the
+  scene's frame rate or `renderer.setPixelRatio`, pause it while the boot overlay is
+  up, or skip `HeroScene` under `prefers-reduced-motion` / low `hardwareConcurrency`.
+  `tests/smoke.spec.ts` currently guards only that the overlay eventually clears;
+  tighten that ceiling to 2s once this is fixed.
+- **[P4-4] Boot overlay has no stable test hook** — TODO
+  `tests/smoke.spec.ts` targets it through the CSS-module class prefix
+  `[class*="BootScreen_boot__"]`, which breaks if the component or its class is
+  renamed. Add `data-testid="boot-screen"` to the overlay root in
+  `src/components/BootScreen.tsx` and point the tests at that instead.
