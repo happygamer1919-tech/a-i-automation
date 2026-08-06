@@ -3,6 +3,7 @@ import { Orbitron, JetBrains_Mono, Inter } from 'next/font/google';
 import { LangProvider } from '@/lib/LangProvider';
 import { SmoothScroll } from '@/components/SmoothScroll';
 import { BootScreen } from '@/components/BootScreen';
+import { StructuredData } from '@/components/StructuredData';
 import '@/styles/globals.css';
 
 const orbitron = Orbitron({
@@ -40,6 +41,14 @@ export const metadata: Metadata = {
     description: 'AI tools, chatbots, and intelligent agents. Deployed into your operations.',
     type: 'website',
     url: 'https://a-and-i-automation.com',
+    // TODO(P3-4): replace with a real 1200x630 OG image
+    images: ['/logo.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'A&I Automation',
+    description: 'AI tools, chatbots, and intelligent agents. Deployed into your operations.',
+    // TODO(P3-4): replace with a real 1200x630 OG image
     images: ['/logo.png'],
   },
 };
@@ -54,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ro" className={`${orbitron.variable} ${jetbrains.variable} ${inter.variable}`}>
       <body>
+        <StructuredData />
         <LangProvider>
           <BootScreen />
           <SmoothScroll>{children}</SmoothScroll>
