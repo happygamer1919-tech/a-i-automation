@@ -41,15 +41,13 @@ export const metadata: Metadata = {
     description: 'AI tools, chatbots, and intelligent agents. Deployed into your operations.',
     type: 'website',
     url: 'https://a-and-i-automation.com',
-    // TODO(P3-4): replace with a real 1200x630 OG image
-    images: ['/logo.png'],
+    images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'A&I Automation',
     description: 'AI tools, chatbots, and intelligent agents. Deployed into your operations.',
-    // TODO(P3-4): replace with a real 1200x630 OG image
-    images: ['/logo.png'],
+    images: ['/og.png'],
   },
 };
 

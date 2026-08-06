@@ -1,0 +1,155 @@
+<!doctype html>
+<!--
+  Source for public/og.png. Rendered headlessly at exactly 1200x630 by scripts/make-og.mjs.
+
+  Rules this file has to keep:
+  - No network requests. The only external asset is ../public/logo.png, loaded from disk,
+    so the card renders offline and identically on every machine.
+  - No Google Fonts link. Orbitron and Inter are pulled by next/font at build time and are
+    not installed system-wide, so they do not resolve here; the card falls back to the
+    generic sans-serif on purpose.
+  - Colours come from src/styles/tokens.css, copy comes from src/lib/i18n.ts (ro).
+  - No em dashes anywhere.
+-->
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <title>A&amp;I Automation OG card</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        position: relative;
+        background: #050514; /* --ink-0, matches themeColor in layout.tsx */
+        font-family: sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Blue/purple gradient accent, same pairing the site uses. */
+      body::before,
+      body::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      body::before {
+        background: radial-gradient(
+          620px 460px at 12% 6%,
+          rgba(42, 91, 255, 0.28) 0%,
+          rgba(42, 91, 255, 0) 70%
+        );
+      }
+
+      body::after {
+        background: radial-gradient(
+          680px 520px at 94% 100%,
+          rgba(122, 27, 184, 0.34) 0%,
+          rgba(122, 27, 184, 0) 70%
+        );
+      }
+
+      .rule {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #2a5bff 0%, #7a1bb8 55%, #d010ff 100%);
+      }
+
+      .card {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 64px;
+        padding: 0 88px;
+      }
+
+      .logo {
+        width: 200px;
+        height: auto;
+        flex: none;
+        border-radius: 24px;
+        border: 1px solid rgba(79, 124, 255, 0.28); /* --blue-300 */
+        box-shadow: 0 0 60px rgba(58, 107, 255, 0.22); /* --blue-glow */
+      }
+
+      .copy {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .kicker {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.26em;
+        color: #4f7cff; /* --blue-300 */
+      }
+
+      .name {
+        margin: 20px 0 22px;
+        font-size: 68px;
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.5px;
+        color: #ffffff; /* --white */
+      }
+
+      .tagline {
+        font-size: 30px;
+        font-weight: 400;
+        line-height: 1.38;
+        color: #e6e8ff; /* --off-white */
+      }
+
+      .domain {
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: #9ea4c4; /* --grey-300 */
+      }
+
+      .domain::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #a855f7; /* --purple-glow */
+        box-shadow: 0 0 12px rgba(168, 85, 247, 0.9);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rule"></div>
+    <div class="card">
+      <!-- Relative path so make-og.mjs can open this file straight off disk. -->
+      <img class="logo" id="logo" src="../public/logo.png" alt="A&amp;I Automation" />
+      <div class="copy">
+        <!-- ro.hero_kicker -->
+        <div class="kicker">AUTOMATIZARE · AI · AGENȚI</div>
+        <div class="name">A&amp;I Automation</div>
+        <!-- ro.hero_sub, copied verbatim from src/lib/i18n.ts -->
+        <div class="tagline">
+          Instrumente AI, chatboți și agenți inteligenți, implementați direct în operațiunile
+          tale.
+        </div>
+        <div class="domain">a-and-i-automation.com</div>
+      </div>
+    </div>
+  </body>
+</html>
