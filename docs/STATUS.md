@@ -4,7 +4,7 @@ Living board for `a-and-i-automation.com`. Served on **:4304**, aggregated on th
 multi-project dashboard (**:4302**). Background lives in `docs/SPEC.md`, tickets in
 `docs/BACKLOG.md`, owner questions in `docs/QUESTIONS.md`, decisions in `docs/DECISIONS.md`.
 
-**Last updated: 2026-08-06** — reconciled against git and the source tree, not recalled.
+**Last updated: 2026-08-28** — reconciled against git, not recalled. See the correction below.
 
 | | |
 |---|---|
@@ -14,7 +14,8 @@ multi-project dashboard (**:4302**). Background lives in `docs/SPEC.md`, tickets
 | **Build** | `npm run build` (Next 15.5.20, `output: 'export'`, `trailingSlash: true`) |
 | **Form backend** | Telegram via the standalone `lead-proxy/` (needs bot token + chat ID — Q6) |
 | **Languages** | RO (default) / RU / EN, switched client-side by `LangProvider` — one URL for all three |
-| **Automated QA** | **NONE.** No test suite, no CI check beyond the build. Contradicts CLAUDE.md ("all QA must be automated and machine-verifiable"). |
+| **Automated QA** | A Playwright smoke suite exists on `site/qa-playwright-baseline` (PR #12) but **has never been run**. Queued as `230-ai-run-smoke-suite.md`. Until it runs green, treat this as **NONE.** |
+| ~~Automated QA (old)~~ | ~~**NONE.**~~ No test suite, no CI check beyond the build. Contradicts CLAUDE.md ("all QA must be automated and machine-verifiable"). |
 
 ## Done
 
@@ -44,16 +45,24 @@ multi-project dashboard (**:4302**). Background lives in `docs/SPEC.md`, tickets
 
 ## In Progress
 
-- **SEO foundation** — queued to the factory 2026-08-06 as `200-ai-seo-foundation.md`.
-  Covers P3-2 (LocalBusiness + Service JSON-LD — the site currently emits **zero**
-  structured data), P3-4 (a real 1200×630 OG image; today OG points at `logo.png`), plus
-  `robots.txt` and `sitemap.xml`, neither of which exists.
-- **P0-5 hero headline wrap** — queued as `210-ai-hero-orphan.md`. A first fix already
-  shipped in `cb0fa3f`: `Hero.tsx` keeps the last two words of `hero_title` together. That
-  mechanism is language-agnostic and is **only verified for RO** — RU and EN split
-  differently and a forced two-word unit can overflow on narrow screens. 210 finishes it.
-- **Automated QA baseline** — queued as `220-ai-playwright-baseline.md`. Playwright +
-  a smoke suite, so owner-facing verification stops being manual.
+**Correction, 2026-08-28.** The three tasks this board called "queued to the factory" were
+in fact **already written**. Each was filed into `queue/done/` with a real commit on a
+local branch — and **none was ever merged or pushed**, so none of it reached the live site.
+The board was wrong in both directions: the code existed, the website did not have it.
+All four are now open as pull requests, rebased on `main` and building clean.
+
+| PR | Branch | What |
+|---|---|---|
+| [#10](https://github.com/happygamer1919-tech/a-i-automation/pull/10) | `site/p3-4-og-image` | P3-2 JSON-LD + `robots.txt` + `sitemap.xml`, P3-4 real 1200x630 OG image, and the em-dash removal that PR #8 lost into a dead branch |
+| [#11](https://github.com/happygamer1919-tech/a-i-automation/pull/11) | `site/p0-5-hero-orphan` | P0-5 hero headline no longer strands a word on narrow phones, RO/RU/EN |
+| [#12](https://github.com/happygamer1919-tech/a-i-automation/pull/12) | `site/qa-playwright-baseline` | QA baseline: Playwright config + a 214-line smoke suite, desktop and mobile |
+
+⚠️ **PR #12's suite has never been executed.** It is committed, not proven. Queued as
+`230-ai-run-smoke-suite.md`, which runs it and is forbidden from touching `src/`.
+
+**Standing rule, learned the hard way:** never trust `queue/done/`. Check the branch:
+`git log --oneline main..<branch>`. Four finished tasks sat invisible for three weeks
+because the queue folder said done and nobody looked at git.
 
 ## Blocked
 
@@ -68,8 +77,8 @@ multi-project dashboard (**:4302**). Background lives in `docs/SPEC.md`, tickets
 
 ## Next
 
-1. **SEO foundation, hero wrap, QA baseline** — the three tasks already queued; no owner
-   input needed for any of them.
+1. **Merge PRs #10, #11, #12** — written, rebased, building. Nothing needed from the owner.
+   Then run the smoke suite (task 230) so the QA baseline is proven rather than assumed.
 2. **P3-1 per-service pages** — anchors shipped; real routes per service are the SEO win.
    Gated on the same routing decision as P3-3.
 3. **P1-2 scrollytelling hero** — the SPEC centrepiece: a real automation playing on
