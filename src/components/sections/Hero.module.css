@@ -33,7 +33,17 @@
 .kicker { margin-bottom: 1.5rem; }
 
 .title {
-  font-size: clamp(2.4rem, 7vw, 5.5rem);
+  /* Three regimes, and only the floor changed (was a flat 2.4rem):
+       < ~375px  -> 8.5vw, so the floor keeps shrinking with the screen
+       ~375-458  -> 2rem
+       > ~458px  -> 7vw, up to 5.5rem
+     A flat floor was the orphan bug: below 458px the type stopped shrinking while
+     the column kept narrowing, so the longest word of each headline ("Automatizăm",
+     "Автоматизируем") took a whole line and shoved a short word ("munca",
+     "рутинную") onto one of its own. A floor that scales holds two words per line
+     all the way down to 320px in RO/RU/EN. 8.5vw meets 2rem at 375px, so the two
+     regimes join without a visible step. */
+  font-size: clamp(min(8.5vw, 2rem), 7vw, 5.5rem);
   line-height: 1.04;
   max-width: 18ch;
   margin-bottom: 1.5rem;
