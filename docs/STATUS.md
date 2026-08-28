@@ -14,8 +14,7 @@ multi-project dashboard (**:4302**). Background lives in `docs/SPEC.md`, tickets
 | **Build** | `npm run build` (Next 15.5.20, `output: 'export'`, `trailingSlash: true`) |
 | **Form backend** | Telegram via the standalone `lead-proxy/` (needs bot token + chat ID — Q6) |
 | **Languages** | RO (default) / RU / EN, switched client-side by `LangProvider` — one URL for all three |
-| **Automated QA** | A Playwright smoke suite exists on `site/qa-playwright-baseline` (PR #12) but **has never been run**. Queued as `230-ai-run-smoke-suite.md`. Until it runs green, treat this as **NONE.** |
-| ~~Automated QA (old)~~ | ~~**NONE.**~~ No test suite, no CI check beyond the build. Contradicts CLAUDE.md ("all QA must be automated and machine-verifiable"). |
+| **Automated QA** | A Playwright smoke suite exists on `site/qa-playwright-baseline` (PR #12) but **has never been run**. Queued as `230-ai-run-smoke-suite.md`. Until it runs green, treat this as **NONE** — no CI check beyond the build, which contradicts CLAUDE.md ("all QA must be automated and machine-verifiable"). |
 
 ## Done
 
