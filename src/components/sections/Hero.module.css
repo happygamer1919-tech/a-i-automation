@@ -45,6 +45,11 @@
      regimes join without a visible step. */
   font-size: clamp(min(8.5vw, 2rem), 7vw, 5.5rem);
   line-height: 1.04;
+  /* EN has the most words (8) and was still wrapping to four lines at 375px with
+     "repetitive" stranded alone, while RO and RU sat cleanly on three. The font-size
+     floor above fixes the shrink; `balance` fixes the distribution, evening the lines
+     out instead of filling each one greedily and dumping the remainder. */
+  text-wrap: balance;
   max-width: 18ch;
   margin-bottom: 1.5rem;
   font-weight: 800;
